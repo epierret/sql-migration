@@ -86,7 +86,7 @@ Terraform is responsible for creating the cloud resources required by the backup
 
 ![IAM Policy](https://github.com/user-attachments/assets/e359fff1-d79e-46ed-9b35-486897a24a1b)
 
-AWS credentials are validated beforehand using the Python script located in `/scripts`.
+AWS credentials are validated beforehand using the Python script located in `/scripts/keys-check.py`.
 
 ![AWS Keys Validation](https://github.com/user-attachments/assets/73d025e0-0186-4920-8b21-6b0ca681221a)
 
