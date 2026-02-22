@@ -1,35 +1,39 @@
+# MySQL Backup to S3 — Kubernetes + Terraform Project
 
-                                                                   ## **Project Overview**
+This project automates the deployment and management of a MySQL database in a Kubernetes environment, with backups stored in AWS S3. Terraform provisions the necessary infrastructure, and Kubernetes manages stateful applications, secrets, and CronJob backups.
 
-> This project automates the deployment and management of a MySQL database in a Kubernetes environment. It includes database initialization, backups, and access by an application. The goal is to demonstrate **best practices in deploying stateful applications, data persistence, and automated backups**.
+---
 
-**Key Features**
-🛠 StatefulSet MySQL → Persistent database deployment
+## 🚀 Key Features
 
-🔐 Secrets Management → Secure credentials for MySQL & AWS
+* 🛠 **StatefulSet MySQL** → Persistent database deployment
+* 🔐 **Secrets Management** → Secure MySQL & AWS credentials
+* ⏰ **CronJob Backups** → Scheduled automated dumps
+* ☁️ **AWS S3 Integration** → Cloud backup storage
+* 📦 **Application Deployment** → Database connectivity validation
 
-⏰ CronJob Backups → Scheduled automatic backups
+---
 
-☁️ AWS S3 Integration → Backup uploads to cloud storage
+## Architecture Overview
 
-📦 Application Deployment → Verify database connectivity
+| Component           | Type / Resource   | Role / Description                       |
+| ------------------- | ----------------- | ---------------------------------------- |
+| 🐬 MySQL Database   | StatefulSet + PVC | Persistent storage for database data     |
+| 🔑 Database Secrets | Secret            | Secure MySQL and AWS credentials         |
+| ⏰ Backup CronJob    | CronJob + PVC     | Dumps & compresses database every 2 mins |
+| 📦 Application      | Deployment        | Verifies connectivity to database        |
+| 🔗 MySQL Service    | ClusterIP Service | Stable internal endpoint for DB access   |
+| ☁️ AWS S3 Bucket    | Cloud Storage     | Stores compressed backup files           |
 
-  --- Architecture Overview ---
-| Component           | Type / Resource   | Role / Description                           |
-| ------------------- | ----------------- | -------------------------------------------- |
-| 🐬 MySQL Database   | StatefulSet + PVC | Persistent storage for database data         |
-| 🔑 Database Secrets | Secret            | Secure MySQL and AWS credentials             |
-| ⏰ Backup CronJob    | CronJob + PVC     | Dumps & compresses the database every 2 mins |
-| 📦 Application      | Deployment        | Verifies connectivity to database            |
-| 🔗 MySQL Service    | ClusterIP Service | Stable internal endpoint for database access |
-| ☁️ AWS S3 Bucket    | Cloud Storage     | Stores compressed backup files               |
+![Architecture Diagram](diagrams/architecture.png)
 
+---
 
-## **Project Structure**
+## Project Structure
 
 ```
 k8s-mysql-migration-backup/
-│ 
+│
 ├── README.md
 ├── LICENSE
 │
@@ -53,113 +57,107 @@ k8s-mysql-migration-backup/
 ```
 
 ---
-📌 Responsibilities / Roles
-Manifest Folder	Responsibility
-00-namespace	Isolate the project from other resources
-01-secrets	Secure passwords and keys
-02-storage	Persist MySQL data
-03-service	Allow MySQL pod discovery
-04-statefulset	Ensure MySQL identity and ordered deployment
-05-cronjob	Automate backups to S3
-06-cleanup	Cleanup resources (optional)
-## **Architecture / Project Components**
 
-| Component             | Type / Resource   | Role / Description                              |
-| --------------------- | ----------------- | ----------------------------------------------- |
-| MySQL Database        | StatefulSet + PVC | Persistent storage of database data             |
-| Database Secrets      | Secret            | Stores database username/password securely      |
-| Database Init Scripts | ConfigMap         | Initializes DB schema and tables on first start |
-| Backup CronJob        | CronJob + PVC     | Dumps the database every 5 minutes              |
-| Application           | Deployment        | Accesses database to confirm users              |
-| Database Service      | ClusterIP Service | Internal endpoint for DB access                 |
+## Manifests Responsibilities
 
----🚀 Deployment Flow
+| Folder         | Responsibility                |
+| -------------- | ----------------------------- |
+| 00-namespace   | Isolate project resources     |
+| 01-secrets     | Secure passwords and AWS keys |
+| 02-storage     | Persistent volumes (PVC)      |
+| 03-service     | MySQL service discovery       |
+| 04-statefulset | Deploy MySQL StatefulSet      |
+| 05-cronjob     | Automated backups to S3       |
+| 06-cleanup     | Optional resource teardown    |
 
-Create namespace → Isolates project resources
+---
 
-Provision MySQL → StatefulSet + PVC for persistent storage
+## Deployment Flow
 
-Store credentials → Secrets for MySQL & AWS
+1. **Create Namespace** → Isolates project resources
+2. **Provision MySQL** → StatefulSet + PVC for persistent storage
+3. **Store Credentials** → Secrets for MySQL & AWS
+4. **Run CronJob** → Automatically backup & compress DB
+5. **Deploy Application** → Connects to MySQL via ClusterIP
 
-Run CronJob → Automatically backup and compress the database
+### Apply Manifests
 
-Deploy application → Connects to MySQL via ClusterIP to verify data
-
-💾 Volumes & Persistence
-
-🐬 MySQL Database → PVC attached to StatefulSet (/var/lib/mysql)
-
-⏰ Backups → PVC attached to CronJob (/backup)
-
-📦 Application → Stateless; no volume required
-
-🔧 Core Concepts
-1️⃣ StatefulSet
-
-Stable network identity, storage, and ordered deployment.
-
-2️⃣ PersistentVolume / PVC
-
-Persistent storage for database and backup files.
-
-3️⃣ Secret
-
-Stores sensitive credentials securely.
-
-4️⃣ CronJob
-
-Automates scheduled backups every 2 minutes (for testing).
-
-5️⃣ Service
-
-ClusterIP service exposes MySQL for internal access.
-
-6️⃣ Application Connectivity
-
-Application reads data from MySQL to demonstrate end-to-end workflow.
-
-✨ Enhancements / Future Improvements
-
-☁️ Multi-cloud backups (AWS + Azure)
-
-🔐 RBAC, Network Policies, and TLS for security
-
-📊 Monitoring & alerting (Prometheus + Grafana)
-
-🤖 CI/CD automation for manifest deployments
-
-⚡ Quickstart / Prerequisites
-
-🖥 Kubernetes cluster running
-
-🛠 kubectl installed and configured
-
-☁️ AWS S3 bucket for backups
-
-git clone git@github.com:epierret/k8s-mysql-migration-backup.git
-cd k8s-mysql-migration-backup
-
-Apply manifests:
-
+```bash
 kubectl apply -f manifests/00-namespace/
 kubectl apply -f manifests/01-secrets/
 kubectl apply -f manifests/02-storage/
 kubectl apply -f manifests/03-service/
 kubectl apply -f manifests/04-statefulset/
 kubectl apply -f manifests/05-cronjob/
+# or use deploy.sh
+```
 
-Monitor pods:
+### Monitor Deployment
 
-kubectl get pods -n mysql-s3-backup
+```bash
+kubectl get all -n mysql-s3-backup
+
+![service ok ](https://github.com/user-attachments/assets/c95ad7b8-de45-4474-bece-c7d980146349)
+
+
 kubectl logs -f <cronjob-pod-name> -n mysql-s3-backup
 
-Verify backups in AWS S3:
+![backup over](https://github.com/user-attachments/assets/96e41397-98af-4683-a9ee-de75b7a464f5)
 
-aws s3 ls s3://sql-backup-nrik/mysql/ --region eu-west-3
-👤 Author
+```
 
-Enrique Pierret – DevOps & Kubernetes enthusiast
 
-If you want, I can also re-make the architecture diagram with emojis/visual style so the README looks even more portfolio-ready.
 
-Do you want me to do that next?
+
+* CronJob runs every 2 minutes (for testing).
+
+* ![job 2 min](https://github.com/user-attachments/assets/24d6515c-fd7a-4c55-9d08-ffd55ebca4e2)
+
+* S3 is provided every 2 minutes
+* 
+*![resultat sql](https://github.com/user-attachments/assets/e9d015b9-4d9f-4e32-be20-bdf48ef072b2)
+
+
+---
+
+## Volumes & Persistence
+
+* 🐬 MySQL Database → PVC attached to StatefulSet (`/var/lib/mysql`)
+* ⏰ Backups → PVC attached to CronJob (`/backup`)
+* 📦 Application → Stateless, no volume required
+
+---
+
+## Terraform Provisioning
+
+Terraform handles AWS S3 bucket creation and IAM policy for backup uploads.
+
+* S3 Bucket → Stores compressed backups
+* IAM Policy → Permissions: `s3:PutObject`, `s3:GetObject`, `s3:ListBucket`
+
+AWS credentials are validated via the `/scripts` Python script before deployment.
+![aws keys ok ](https://github.com/user-attachments/assets/73d025e0-0186-4920-8b21-6b0ca681221a)
+
+
+---
+
+## Core Concepts
+
+* **StatefulSet** → Stable network identity, storage, and ordered deployment
+* **PersistentVolume / PVC** → Persistent storage for database & backups
+* **Secret** → Stores credentials securely
+* **CronJob** → Automates scheduled backups
+* **Service (ClusterIP)** → Internal DB access
+* **Application Connectivity** → Verifies end-to-end workflow
+
+---
+
+## Future Enhancements
+
+* ☁️ Multi-cloud backups (AWS + Azure)
+* 🔐 RBAC & NetworkPolicies
+* 📊 Monitoring (Prometheus + Grafana)
+* 🤖 GitOps / CI-CD automation (ArgoCD / Flux)
+
+---
+
