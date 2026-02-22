@@ -13,7 +13,8 @@ The objective is to showcase practical DevOps and cloud-native skills: stateful 
 
 ## 🧭 Architecture Diagram
 
-![Architecture](diagrams/architecture.png)
+<img width="1536" height="1024" alt="Architecture" src="https://github.com/user-attachments/assets/1d9871e7-da9b-4a01-bdff-d5eb04bb2063" />
+
 
 ---
 
