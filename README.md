@@ -14,7 +14,7 @@
 
 📦 Application Deployment → Verify database connectivity
 
---- Architecture Overview
+                     --- Architecture Overview ---
 | Component           | Type / Resource   | Role / Description                           |
 | ------------------- | ----------------- | -------------------------------------------- |
 | 🐬 MySQL Database   | StatefulSet + PVC | Persistent storage for database data         |
