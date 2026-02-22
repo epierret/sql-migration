@@ -1,20 +1,33 @@
 # MySQL Backup to S3 — Kubernetes + Terraform Project
 
-This project automates the deployment and management of a MySQL database in a Kubernetes environment, with backups stored in AWS S3. Terraform provisions the necessary infrastructure, and Kubernetes manages stateful applications, secrets, and CronJob backups.
+This project demonstrates an end-to-end cloud-native backup workflow where:
+
+• **Terraform** provisions AWS infrastructure
+• **Kubernetes** runs a stateful MySQL workload
+• **CronJob** automates backups
+• **AWS S3** stores compressed dumps
+
+The objective is to showcase practical DevOps and cloud-native skills: stateful deployments, persistence, secrets management, automation, and cloud integration.
+
+---
+
+## 🧭 Architecture Diagram
+
+![Architecture](diagrams/architecture.png)
 
 ---
 
 ## 🚀 Key Features
 
-* 🛠 **StatefulSet MySQL** → Persistent database deployment
-* 🔐 **Secrets Management** → Secure MySQL & AWS credentials
-* ⏰ **CronJob Backups** → Scheduled automated dumps
-* ☁️ **AWS S3 Integration** → Cloud backup storage
-* 📦 **Application Deployment** → Database connectivity validation
+• 🛠 **StatefulSet MySQL** → Persistent database deployment
+• 🔐 **Secrets Management** → Secure MySQL & AWS credentials
+• ⏰ **CronJob Backups** → Automated scheduled dumps
+• ☁️ **AWS S3 Integration** → Durable cloud storage
+• 📦 **Application Deployment** → Connectivity validation
 
 ---
 
-## Architecture Overview
+## 🏗 Architecture Overview
 
 | Component           | Type / Resource   | Role / Description                       |
 | ------------------- | ----------------- | ---------------------------------------- |
@@ -25,11 +38,9 @@ This project automates the deployment and management of a MySQL database in a Ku
 | 🔗 MySQL Service    | ClusterIP Service | Stable internal endpoint for DB access   |
 | ☁️ AWS S3 Bucket    | Cloud Storage     | Stores compressed backup files           |
 
-![Architecture Diagram](diagrams/architecture.png)
-
 ---
 
-## Project Structure
+## 📁 Project Structure
 
 ```
 k8s-mysql-migration-backup/
@@ -58,27 +69,39 @@ k8s-mysql-migration-backup/
 
 ---
 
-## Manifests Responsibilities
+## ⚙️ Terraform Provisioning (AWS)
 
-| Folder         | Responsibility                |
-| -------------- | ----------------------------- |
-| 00-namespace   | Isolate project resources     |
-| 01-secrets     | Secure passwords and AWS keys |
-| 02-storage     | Persistent volumes (PVC)      |
-| 03-service     | MySQL service discovery       |
-| 04-statefulset | Deploy MySQL StatefulSet      |
-| 05-cronjob     | Automated backups to S3       |
-| 06-cleanup     | Optional resource teardown    |
+Terraform is responsible for creating the cloud resources required by the backup workflow:
+
+• ☁️ **AWS S3 Bucket** → Backup destination
+• 🔐 **IAM Policy** → Permissions for uploads
+
+**Permissions used:**
+
+• `s3:PutObject` → Required for backups
+• `s3:GetObject` → Optional verification
+• `s3:ListBucket` → Bucket visibility
+
+![IAM Policy](https://github.com/user-attachments/assets/e359fff1-d79e-46ed-9b35-486897a24a1b)
+
+AWS credentials are validated beforehand using the Python script located in `/scripts`.
+
+![AWS Keys Validation](https://github.com/user-attachments/assets/73d025e0-0186-4920-8b21-6b0ca681221a)
 
 ---
 
-## Deployment Flow
+## 🚀 Deployment Flow
 
-1. **Create Namespace** → Isolates project resources
-2. **Provision MySQL** → StatefulSet + PVC for persistent storage
-3. **Store Credentials** → Secrets for MySQL & AWS
-4. **Run CronJob** → Automatically backup & compress DB
-5. **Deploy Application** → Connects to MySQL via ClusterIP
+1️⃣ **Provision Infrastructure (Terraform)**
+2️⃣ **Create Namespace** → Resource isolation
+3️⃣ **Deploy MySQL** → StatefulSet + PVC
+4️⃣ **Create Secrets** → MySQL & AWS credentials
+5️⃣ **Run CronJob** → Backup automation
+6️⃣ **Deploy Application** → Connectivity check
+
+---
+
+## ☸️ Kubernetes Deployment
 
 ### Apply Manifests
 
@@ -92,84 +115,75 @@ kubectl apply -f manifests/05-cronjob/
 # or use deploy.sh
 ```
 
-### Monitor Deployment
+---
+
+## 📦 Monitoring & Validation
+
+### Check Resources
 
 ```bash
 kubectl get all -n mysql-s3-backup
-
-![service ok ](https://github.com/user-attachments/assets/c95ad7b8-de45-4474-bece-c7d980146349)
-
-
-kubectl logs -f <cronjob-pod-name> -n mysql-s3-backup
-
-![backup over](https://github.com/user-attachments/assets/96e41397-98af-4683-a9ee-de75b7a464f5)
-
 ```
 
-
-
-
-* CronJob runs every 2 minutes (for testing).
-
-* ![job 2 min](https://github.com/user-attachments/assets/24d6515c-fd7a-4c55-9d08-ffd55ebca4e2)
-
-
-* S3 is provided
-
-* 
-*![resultat sql](https://github.com/user-attachments/assets/e9d015b9-4d9f-4e32-be20-bdf48ef072b2)
-
-
-
-
+![Service Running](https://github.com/user-attachments/assets/c95ad7b8-de45-4474-bece-c7d980146349)
 
 ---
 
-## Volumes & Persistence
+### CronJob Execution
 
-* 🐬 MySQL Database → PVC attached to StatefulSet (`/var/lib/mysql`)
-* ⏰ Backups → PVC attached to CronJob (`/backup`)
-* 📦 Application → Stateless, no volume required
+CronJob runs every **2 minutes** (testing interval).
 
----
-
-## Terraform Provisioning
-
-Terraform handles AWS S3 bucket creation and IAM policy for backup uploads.
-
-* S3 Bucket → Stores compressed backups
-* IAM Policy → Permissions: `s3:PutObject`, `s3:GetObject`, `s3:ListBucket`
-
-<img width="344" height="279" alt="image" src="https://github.com/user-attachments/assets/e359fff1-d79e-46ed-9b35-486897a24a1b" />
-
-
-
-
-AWS credentials are validated via the `/scripts` Python script before deployment.
-
-
-![aws keys ok ](https://github.com/user-attachments/assets/73d025e0-0186-4920-8b21-6b0ca681221a)
-
+![CronJob](https://github.com/user-attachments/assets/24d6515c-fd7a-4c55-9d08-ffd55ebca4e2)
 
 ---
 
-## Core Concepts
+### Backup Logs
 
-* **StatefulSet** → Stable network identity, storage, and ordered deployment
-* **PersistentVolume / PVC** → Persistent storage for database & backups
-* **Secret** → Stores credentials securely
-* **CronJob** → Automates scheduled backups
-* **Service (ClusterIP)** → Internal DB access
-* **Application Connectivity** → Verifies end-to-end workflow
+```bash
+kubectl logs -f <cronjob-pod-name> -n mysql-s3-backup
+```
 
----
-
-## Future Enhancements
-
-* ☁️ Multi-cloud backups (AWS + Azure)
-* 🔐 RBAC & NetworkPolicies
-* 📊 Monitoring (Prometheus + Grafana)
-* 🤖 GitOps / CI-CD automation (ArgoCD / Flux)
+![Backup Logs](https://github.com/user-attachments/assets/96e41397-98af-4683-a9ee-de75b7a464f5)
 
 ---
 
+### Verify Backups in S3
+
+![S3 Backups](https://github.com/user-attachments/assets/e9d015b9-4d9f-4e32-be20-bdf48ef072b2)
+
+---
+
+## 💾 Volumes & Persistence
+
+• 🐬 **MySQL Database** → PVC (`/var/lib/mysql`)
+• ⏰ **Backups** → PVC (`/backup`)
+• 📦 **Application** → Stateless
+
+---
+
+## 🔧 Core Concepts Demonstrated
+
+• **StatefulSet** → Stable identity & storage
+• **PersistentVolume / PVC** → Data durability
+• **Secret** → Credential protection
+• **CronJob** → Scheduled automation
+• **Service (ClusterIP)** → Internal discovery
+• **Cloud Integration (S3)** → Backup destination
+
+---
+
+## ✨ Future Enhancements
+
+• ☁️ Multi-cloud backups (AWS + Azure)
+• 🔐 RBAC & NetworkPolicies
+• 📊 Monitoring (Prometheus + Grafana)
+• 🤖 GitOps / CI-CD (ArgoCD / Flux)
+
+---
+
+## 🧹 Cleanup
+
+```bash
+kubectl delete namespace mysql-s3-backup
+terraform destroy
+```
