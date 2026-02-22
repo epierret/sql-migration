@@ -29,7 +29,7 @@
 
 ```
 k8s-mysql-migration-backup/
-│
+│ 
 ├── README.md
 ├── LICENSE
 │
@@ -44,8 +44,12 @@ k8s-mysql-migration-backup/
 ├── diagrams/
 │   └── architecture.png
 │
-└── scripts/
-    └── deploy.sh
+├── scripts/
+│   └── deploy.sh
+│
+└── terraform-s3/
+    ├── main.tf
+    └── variables.tf
 ```
 
 ---
