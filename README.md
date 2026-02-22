@@ -1,5 +1,5 @@
 
-## **Project Overview**
+                                                                   ## **Project Overview**
 
 > This project automates the deployment and management of a MySQL database in a Kubernetes environment. It includes database initialization, backups, and access by an application. The goal is to demonstrate **best practices in deploying stateful applications, data persistence, and automated backups**.
 
@@ -14,7 +14,7 @@
 
 📦 Application Deployment → Verify database connectivity
 
-                     --- Architecture Overview ---
+  --- Architecture Overview ---
 | Component           | Type / Resource   | Role / Description                           |
 | ------------------- | ----------------- | -------------------------------------------- |
 | 🐬 MySQL Database   | StatefulSet + PVC | Persistent storage for database data         |
