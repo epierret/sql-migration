@@ -113,9 +113,14 @@ kubectl logs -f <cronjob-pod-name> -n mysql-s3-backup
 
 * ![job 2 min](https://github.com/user-attachments/assets/24d6515c-fd7a-4c55-9d08-ffd55ebca4e2)
 
-* S3 is provided every 2 minutes
+
+* S3 is provided
+
 * 
 *![resultat sql](https://github.com/user-attachments/assets/e9d015b9-4d9f-4e32-be20-bdf48ef072b2)
+
+
+
 
 
 ---
@@ -135,7 +140,14 @@ Terraform handles AWS S3 bucket creation and IAM policy for backup uploads.
 * S3 Bucket → Stores compressed backups
 * IAM Policy → Permissions: `s3:PutObject`, `s3:GetObject`, `s3:ListBucket`
 
+<img width="344" height="279" alt="image" src="https://github.com/user-attachments/assets/e359fff1-d79e-46ed-9b35-486897a24a1b" />
+
+
+
+
 AWS credentials are validated via the `/scripts` Python script before deployment.
+
+
 ![aws keys ok ](https://github.com/user-attachments/assets/73d025e0-0186-4920-8b21-6b0ca681221a)
 
 
